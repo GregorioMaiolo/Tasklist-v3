@@ -1,5 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const taskService = require('../service/task-service');
 
 const isValidDate = (value) => {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -10,17 +9,32 @@ const isValidDate = (value) => {
     return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 };
 
+const isFutureDate = (value) => {
+    const today = new Date();
+    const todayString =
+        `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+    return value >= todayString;
+};
+
+const formatDate = (date) =>
+    (date instanceof Date ? date : new Date(date)).toISOString().slice(0, 10);
+
+const formatToday = () => {
+    const today = new Date();
+    return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+};
+
 // Startseite anzeigen
 exports.getTasks = async (req, res) => {
     try {
-        const tasks = await prisma.task.findMany({
-            orderBy: [
-                { done: 'asc' },
-                { dueDate: 'asc' }
-            ]
-        });
+        const tasks = await taskService.getAllTasks();
+        const viewTasks = tasks.map((task) => ({
+            ...task,
+            dueDate: formatDate(task.dueDate)
+        }));
 
-        res.render('index', { tasks });
+        res.render('index', { tasks: viewTasks });
     } catch (error) {
         console.error('Die Aufgaben konnten nicht aus der Datenbank geladen werden:', error);
         res.status(503).send('Die Aufgaben konnten nicht geladen werden. Die Datenbank ist momentan nicht erreichbar.');
@@ -29,7 +43,7 @@ exports.getTasks = async (req, res) => {
 
 // Formular für neue Aufgabe anzeigen
 exports.getNewTask = (req, res) => {
-    res.render('new-task');
+    res.render('new-task', { minDueDate: formatToday() });
 };
 
 // Neue Aufgabe erstellen
@@ -42,14 +56,16 @@ exports.createTask = async (req, res) => {
         return res.status(400).send('Ungültige Eingabe: Titel und ein gültiges Fälligkeitsdatum sind erforderlich.');
     }
 
+    if (!isFutureDate(dueDate)) {
+        return res.status(400).send('Ungültige Eingabe: Das Fälligkeitsdatum darf nicht in der Vergangenheit liegen.');
+    }
+
     try {
-        await prisma.task.create({
-            data: {
-                title,
-                description: description || null,
-                dueDate: new Date(`${dueDate}T00:00:00.000Z`),
-                done: false
-            }
+        await taskService.createTask({
+            title,
+            description: description || null,
+            dueDate: new Date(`${dueDate}T00:00:00.000Z`),
+            done: false
         });
 
         res.redirect('/');
@@ -64,12 +80,12 @@ exports.completeTask = async (req, res) => {
     const id = Number(req.params.id);
 
     try {
-        const task = await prisma.task.findUnique({ where: { id } });
+        const task = await taskService.getTaskById(id);
         if (!task) {
             return res.status(404).send('Aufgabe nicht gefunden.');
         }
 
-        await prisma.task.update({ where: { id }, data: { done: true } });
+        await taskService.completeTask(id);
         res.redirect('/');
     } catch (error) {
         console.error('Die Aufgabe konnte nicht als erledigt markiert werden:', error);
@@ -82,12 +98,12 @@ exports.deleteTask = async (req, res) => {
     const id = Number(req.params.id);
 
     try {
-        const task = await prisma.task.findUnique({ where: { id } });
+        const task = await taskService.getTaskById(id);
         if (!task) {
             return res.status(404).send('Aufgabe nicht gefunden.');
         }
 
-        await prisma.task.delete({ where: { id } });
+        await taskService.deleteTask(id);
         res.redirect('/');
     } catch (error) {
         console.error('Die Aufgabe konnte nicht gelöscht werden:', error);
