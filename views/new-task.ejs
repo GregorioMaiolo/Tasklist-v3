@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Neue Aufgabe</title>
+
+    <!-- Normalize CSS -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+
+    <!-- Skeleton CSS -->
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>Neue Aufgabe</h1>
+
+        <form action="/aufgaben/neu" method="POST">
+
+            <label for="title">Titel</label>
+            <input
+                class="u-full-width"
+                type="text"
+                id="title"
+                name="title"
+                required
+            >
+
+            <label for="description">Beschreibung</label>
+            <textarea
+                class="u-full-width"
+                id="description"
+                name="description"
+            ></textarea>
+
+            <label for="dueDate">Fälligkeitsdatum</label>
+            <input
+                class="u-full-width"
+                type="date"
+                id="dueDate"
+                name="dueDate"
+                min="<%= new Date().toISOString().split('T')[0] %>"
+                required
+            >
+
+            <button class="button-primary" type="submit">
+                Aufgabe erstellen
+            </button>
+
+            <a href="/" class="button">
+                Abbrechen
+            </a>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>

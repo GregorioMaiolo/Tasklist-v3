@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aufgabenliste</title>
+
+
+    <!-- Normalize CSS (Voraussetzung für Skeleton) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <!-- Skeleton CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+
+    <style>
+        .done {
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Aufgabenliste v1</h1>
+
+    <a href="/aufgaben/neu" class="button button-primary">
+        Neue Aufgabe
+    </a>
+    <div class="container">
+        <% if (tasks && tasks.length> 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Titel</th>
+                        <th>Beschreibung</th>
+                        <th>Fälligkeitsdatum</th>
+                        <th>Status</th>
+                        <th>Aktionen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% tasks.forEach(task=> { %>
+                        <tr class="<%= task.done ? 'done' : '' %>">
+                            <td>
+                                <%= task.id %>
+                            </td>
+                            <td>
+                                    <%= task.title %>
+                                </td>
+                            <td>
+                                <%= task.description %>
+                            </td>
+                            <td>
+                                <%= task.dueDate.toISOString().slice(0, 10) %>
+                            </td>
+                            <td>
+                                <% if (task.done) { %>
+                                    <span>Erledigt</span>
+                                    <% } else { %>
+                                        <span>Offen</span>
+                                        <% } %>
+                            </td>
+                            <td>
+
+                                <% if (!task.done) { %>
+                                    <form action="/aufgaben/<%= task.id %>/erledigt" method="POST">
+                                        <button type="submit">
+                                            Erledigen
+                                        </button>
+                                    </form>
+                                    <% } %>
+
+                                        <form action="/aufgaben/<%= task.id %>/loeschen" method="POST">
+                                            <button type="submit">
+                                                Löschen
+                                            </button>
+                                        </form>
+
+                            </td>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+            <% } else { %>
+                <p>Keine Aufgaben vorhanden.</p>
+                <% } %>
+    </div>
+</body>
+
+</html>

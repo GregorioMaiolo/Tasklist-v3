@@ -1,0 +1,35 @@
+{
+  "name": "aa-tasklist-v2",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "homepage": "https://github.com/GregorioMaiolo/AA-Tasklist-v2#readme",
+  "bugs": {
+    "url": "https://github.com/GregorioMaiolo/AA-Tasklist-v2/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GregorioMaiolo/AA-Tasklist-v2.git"
+  },
+  "license": "ISC",
+  "author": "Gregorio Maiolo",
+  "type": "commonjs",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "dotenv": "^18.0.8",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "nodemon": "^1.14.10"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "prisma": "^6.19.3",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
