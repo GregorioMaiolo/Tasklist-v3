@@ -1,4 +1,5 @@
 const taskService = require('../service/task-service');
+const userService = require('../service/user-service');
 
 const isValidDate = (value) => {
     if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -61,11 +62,17 @@ exports.createTask = async (req, res) => {
     }
 
     try {
+        const admin = await userService.getAdmin();
+        if (!admin) {
+            return res.status(503).send('Die Aufgabe kann nicht erstellt werden, da kein Admin-Benutzer vorhanden ist.');
+        }
+
         await taskService.createTask({
             title,
             description: description || null,
             dueDate: new Date(`${dueDate}T00:00:00.000Z`),
-            done: false
+            done: false,
+            createdById: admin.id
         });
 
         res.redirect('/');

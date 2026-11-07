@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrieren</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        body {
+            color: #222;
+            background-color: #fff;
+        }
+
+        input[type="email"],
+        input[type="password"] {
+            color: #222 !important;
+            background-color: #fff !important;
+            caret-color: #222;
+            -webkit-text-fill-color: #222;
+        }
+
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            color: #222 !important;
+            border-color: #33c3f0;
+            background-color: #fff !important;
+            -webkit-text-fill-color: #222;
+        }
+
+        p[role="alert"] {
+            padding: 10px 12px;
+            border-left: 4px solid #c0392b;
+            color: #8e2a20;
+            background-color: #fdecea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Registrieren</h1>
+
+        <% if (error) { %>
+            <p role="alert">
+                <strong><%= statusCode %></strong>: <%= error %>
+            </p>
+        <% } %>
+
+        <form action="/registrieren" method="POST">
+            <label for="email">E-Mail-Adresse</label>
+            <input
+                class="u-full-width"
+                type="email"
+                id="email"
+                name="email"
+                value="<%= email %>"
+                required
+            >
+
+            <label for="password">Passwort</label>
+            <input
+                class="u-full-width"
+                type="password"
+                id="password"
+                name="password"
+                minlength="8"
+                required
+            >
+
+            <button class="button-primary" type="submit">
+                Registrieren
+            </button>
+            <a href="/" class="button">Abbrechen</a>
+        </form>
+    </div>
+</body>
+
+</html>
