@@ -14,9 +14,28 @@ datasource db {
 }
 
 model Task {
-  id          Int      @id @default(autoincrement())
-  title       String
-  description String?  @db.Text
-  dueDate     DateTime
-  done        Boolean  @default(false)
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String?  @db.Text
+  dueDate      DateTime
+  done         Boolean  @default(false)
+  createdById  Int
+  assignedToId Int?
+  createdBy    User     @relation("CreatedTasks", fields: [createdById], references: [id])
+  assignedTo   User?    @relation("AssignedTasks", fields: [assignedToId], references: [id])
+}
+
+enum Role {
+  admin
+  user
+}
+
+model User {
+  id             Int     @id @default(autoincrement())
+  email          String  @unique
+  password       String
+  profilePicture String?
+  role           Role    @default(user)
+  createdTasks   Task[]  @relation("CreatedTasks")
+  assignedTasks  Task[]  @relation("AssignedTasks")
 }
