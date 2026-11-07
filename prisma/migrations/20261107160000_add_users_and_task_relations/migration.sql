@@ -14,8 +14,8 @@ CREATE TABLE `User` (
 -- The data seed in Aufgabe 3 replaces this account with the configured admin user.
 INSERT INTO `User` (`email`, `password`, `role`)
 VALUES (
-    'migration-admin@tasklist.local',
-    '$2b$12$placeholdermigrationadminpasswordhash0000000000000000000000000000',
+    'admin@tasklist.local',
+    '$2b$12$B7lOldY593HBv01qbDUYYOi7WltUhl57C8VvgcUlBE3alKmjb997W',
     'admin'
 );
 
@@ -28,7 +28,7 @@ UPDATE `Task`
 SET `createdById` = (
     SELECT `id`
     FROM `User`
-    WHERE `email` = 'migration-admin@tasklist.local'
+    WHERE `email` = 'admin@tasklist.local'
 )
 WHERE `createdById` IS NULL;
 
