@@ -61,3 +61,42 @@ exports.registerUser = async (req, res) => {
         });
     }
 };
+
+exports.getUsers = async (req, res) => {
+    try {
+        const users = await userService.getAllUsers();
+        res.render('users', { users, error: null });
+    } catch (error) {
+        console.error('Die Benutzer konnten nicht geladen werden:', error);
+        res.status(503).render('users', {
+            users: [],
+            error: 'Die Benutzer konnten nicht geladen werden. Die Datenbank ist momentan nicht erreichbar.'
+        });
+    }
+};
+
+exports.updateRole = async (req, res) => {
+    const id = Number(req.params.id);
+    const role = typeof req.body.role === 'string' ? req.body.role : '';
+
+    if (!Number.isInteger(id) || id <= 0) {
+        return res.status(400).send('Ungültige Benutzer-ID.');
+    }
+
+    if (role !== 'admin' && role !== 'user') {
+        return res.status(400).send('Ungültige Rolle. Erlaubt sind admin und user.');
+    }
+
+    try {
+        const user = await userService.getUserById(id);
+        if (!user) {
+            return res.status(404).send('Benutzer nicht gefunden.');
+        }
+
+        await userService.updateRole(id, role);
+        res.redirect('/benutzer');
+    } catch (error) {
+        console.error('Die Benutzerrolle konnte nicht geändert werden:', error);
+        res.status(503).send('Die Benutzerrolle konnte nicht gespeichert werden. Die Datenbank ist momentan nicht erreichbar.');
+    }
+};

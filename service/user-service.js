@@ -8,6 +8,36 @@ exports.getAdmin = () =>
         where: { role: 'admin' }
     });
 
+exports.getAllUsers = () =>
+    prisma.user.findMany({
+        orderBy: [
+            { role: 'asc' },
+            { email: 'asc' }
+        ],
+        select: {
+            id: true,
+            email: true,
+            role: true,
+            profilePicture: true
+        }
+    });
+
+exports.getUserById = (id) =>
+    prisma.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            email: true,
+            role: true
+        }
+    });
+
+exports.updateRole = (id, role) =>
+    prisma.user.update({
+        where: { id },
+        data: { role }
+    });
+
 exports.createOrUpdateUser = async ({
     email,
     password,
@@ -36,7 +66,7 @@ exports.registerUser = async ({ email, password }) => {
     const passwordHash = await bcrypt.hash(password, 12);
     const dueDate = new Date();
     dueDate.setHours(0, 0, 0, 0);
-    dueDate.setDate(dueDate.getDate() + 3);
+    dueDate.setDate(dueDate.getDate() + 2);
 
     return prisma.$transaction(async (transaction) => {
         const admin = await transaction.user.findFirst({

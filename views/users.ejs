@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Benutzer</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        body {
+            color: #222;
+            background-color: #fff;
+        }
+
+        select {
+            color: #222;
+            background-color: #fff;
+        }
+
+        .error {
+            padding: 10px 12px;
+            border-left: 4px solid #c0392b;
+            color: #8e2a20;
+            background-color: #fdecea;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Benutzerübersicht</h1>
+
+        <a href="/" class="button">Zur Aufgabenliste</a>
+        <a href="/registrieren" class="button button-primary">Registrieren</a>
+
+        <% if (error) { %>
+            <p class="error" role="alert"><%= error %></p>
+        <% } %>
+
+        <% if (users && users.length > 0) { %>
+            <table class="u-full-width">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>E-Mail</th>
+                        <th>Profilbild</th>
+                        <th>Rolle</th>
+                        <th>Aktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach((user) => { %>
+                        <tr>
+                            <td><%= user.id %></td>
+                            <td><%= user.email %></td>
+                            <td><%= user.profilePicture || 'Keines' %></td>
+                            <td><%= user.role %></td>
+                            <td>
+                                <form action="/benutzer/<%= user.id %>/rolle" method="POST">
+                                    <select name="role" aria-label="Rolle für <%= user.email %>">
+                                        <option value="user" <%= user.role === 'user' ? 'selected' : '' %>>user</option>
+                                        <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>admin</option>
+                                    </select>
+                                    <button type="submit">Speichern</button>
+                                </form>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        <% } else if (!error) { %>
+            <p>Keine Benutzer vorhanden.</p>
+        <% } %>
+    </div>
+</body>
+
+</html>
