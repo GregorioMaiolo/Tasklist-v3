@@ -30,12 +30,13 @@ const formatToday = () => {
 exports.getTasks = async (req, res) => {
     try {
         const tasks = await taskService.getAllTasks();
+        const users = await userService.getAllUsers();
         const viewTasks = tasks.map((task) => ({
             ...task,
             dueDate: formatDate(task.dueDate)
         }));
 
-        res.render('index', { tasks: viewTasks });
+        res.render('index', { tasks: viewTasks, users });
     } catch (error) {
         console.error('Die Aufgaben konnten nicht aus der Datenbank geladen werden:', error);
         res.status(503).send('Die Aufgaben konnten nicht geladen werden. Die Datenbank ist momentan nicht erreichbar.');
@@ -44,7 +45,17 @@ exports.getTasks = async (req, res) => {
 
 // Formular für neue Aufgabe anzeigen
 exports.getNewTask = (req, res) => {
-    res.render('new-task', { minDueDate: formatToday() });
+    userService.getAllUsers()
+        .then((users) => {
+            res.render('new-task', {
+                minDueDate: formatToday(),
+                users
+            });
+        })
+        .catch((error) => {
+            console.error('Die Benutzer für das Formular konnten nicht geladen werden:', error);
+            res.status(503).send('Die Benutzer konnten nicht geladen werden. Die Datenbank ist momentan nicht erreichbar.');
+        });
 };
 
 // Neue Aufgabe erstellen
@@ -52,6 +63,10 @@ exports.createTask = async (req, res) => {
     const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
     const description = typeof req.body.description === 'string' ? req.body.description.trim() : '';
     const dueDate = req.body.dueDate;
+    const assignedToValue = typeof req.body.assignedToId === 'string'
+        ? req.body.assignedToId
+        : '';
+    const assignedToId = assignedToValue === '' ? null : Number(assignedToValue);
 
     if (!title || !isValidDate(dueDate)) {
         return res.status(400).send('Ungültige Eingabe: Titel und ein gültiges Fälligkeitsdatum sind erforderlich.');
@@ -61,10 +76,21 @@ exports.createTask = async (req, res) => {
         return res.status(400).send('Ungültige Eingabe: Das Fälligkeitsdatum darf nicht in der Vergangenheit liegen.');
     }
 
+    if (assignedToId !== null && (!Number.isInteger(assignedToId) || assignedToId <= 0)) {
+        return res.status(400).send('Ungültige Benutzerzuweisung.');
+    }
+
     try {
         const admin = await userService.getAdmin();
         if (!admin) {
             return res.status(503).send('Die Aufgabe kann nicht erstellt werden, da kein Admin-Benutzer vorhanden ist.');
+        }
+
+        if (assignedToId !== null) {
+            const assignedUser = await userService.getUserById(assignedToId);
+            if (!assignedUser) {
+                return res.status(404).send('Der ausgewählte Benutzer existiert nicht.');
+            }
         }
 
         await taskService.createTask({
@@ -72,7 +98,8 @@ exports.createTask = async (req, res) => {
             description: description || null,
             dueDate: new Date(`${dueDate}T00:00:00.000Z`),
             done: false,
-            createdById: admin.id
+            createdById: admin.id,
+            assignedToId
         });
 
         res.redirect('/');
@@ -115,5 +142,41 @@ exports.deleteTask = async (req, res) => {
     } catch (error) {
         console.error('Die Aufgabe konnte nicht gelöscht werden:', error);
         res.status(503).send('Die Aufgabe konnte nicht gelöscht werden. Die Datenbank ist momentan nicht erreichbar.');
+    }
+};
+
+exports.updateAssignment = async (req, res) => {
+    const taskId = Number(req.params.id);
+    const assignedToValue = typeof req.body.assignedToId === 'string'
+        ? req.body.assignedToId
+        : '';
+    const assignedToId = assignedToValue === '' ? null : Number(assignedToValue);
+
+    if (!Number.isInteger(taskId) || taskId <= 0) {
+        return res.status(400).send('Ungültige Aufgaben-ID.');
+    }
+
+    if (assignedToId !== null && (!Number.isInteger(assignedToId) || assignedToId <= 0)) {
+        return res.status(400).send('Ungültige Benutzerzuweisung.');
+    }
+
+    try {
+        const task = await taskService.getTaskById(taskId);
+        if (!task) {
+            return res.status(404).send('Aufgabe nicht gefunden.');
+        }
+
+        if (assignedToId !== null) {
+            const assignedUser = await userService.getUserById(assignedToId);
+            if (!assignedUser) {
+                return res.status(404).send('Der ausgewählte Benutzer existiert nicht.');
+            }
+        }
+
+        await taskService.updateAssignment(taskId, assignedToId);
+        res.redirect('/');
+    } catch (error) {
+        console.error('Die Benutzerzuweisung konnte nicht gespeichert werden:', error);
+        res.status(503).send('Die Benutzerzuweisung konnte nicht gespeichert werden. Die Datenbank ist momentan nicht erreichbar.');
     }
 };

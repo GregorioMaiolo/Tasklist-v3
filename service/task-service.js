@@ -7,7 +7,15 @@ exports.getAllTasks = () =>
         orderBy: [
             { done: 'asc' },
             { dueDate: 'asc' }
-        ]
+        ],
+        include: {
+            createdBy: {
+                select: { id: true, email: true }
+            },
+            assignedTo: {
+                select: { id: true, email: true }
+            }
+        }
     });
 
 exports.getTaskById = (id) =>
@@ -21,3 +29,9 @@ exports.completeTask = (id) =>
 
 exports.deleteTask = (id) =>
     prisma.task.delete({ where: { id } });
+
+exports.updateAssignment = (id, assignedToId) =>
+    prisma.task.update({
+        where: { id },
+        data: { assignedToId }
+    });

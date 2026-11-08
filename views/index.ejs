@@ -40,6 +40,8 @@
                         <th>Titel</th>
                         <th>Beschreibung</th>
                         <th>Fälligkeitsdatum</th>
+                        <th>Erstellt von</th>
+                        <th>Zugewiesen an</th>
                         <th>Status</th>
                         <th>Aktionen</th>
                     </tr>
@@ -58,6 +60,24 @@
                             </td>
                             <td>
                                 <%= task.dueDate %>
+                            </td>
+                            <td>
+                                <%= task.createdBy ? task.createdBy.email : 'Unbekannt' %>
+                            </td>
+                            <td>
+                                <%= task.assignedTo ? task.assignedTo.email : 'Nicht zugewiesen' %>
+                                <form action="/aufgaben/<%= task.id %>/zuweisen" method="POST">
+                                    <select name="assignedToId" aria-label="Aufgabe zuweisen">
+                                        <option value="" <%= !task.assignedTo ? 'selected' : '' %>>Nicht zugewiesen</option>
+                                        <% users.forEach((user) => { %>
+                                            <option
+                                                value="<%= user.id %>"
+                                                <%= task.assignedTo && task.assignedTo.id === user.id ? 'selected' : '' %>
+                                            ><%= user.email %></option>
+                                        <% }) %>
+                                    </select>
+                                    <button type="submit">Speichern</button>
+                                </form>
                             </td>
                             <td>
                                 <% if (task.done) { %>

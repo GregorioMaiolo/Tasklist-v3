@@ -50,6 +50,14 @@
                 required
             >
 
+            <label for="assignedToId">Aufgabe zuweisen (optional)</label>
+            <select class="u-full-width" id="assignedToId" name="assignedToId">
+                <option value="">Nicht zugewiesen</option>
+                <% users.forEach((user) => { %>
+                    <option value="<%= user.id %>"><%= user.email %></option>
+                <% }) %>
+            </select>
+
             <button class="button-primary" type="submit">
                 Aufgabe erstellen
             </button>
