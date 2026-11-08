@@ -16,6 +16,29 @@
         .done {
             text-decoration: line-through;
         }
+
+        .assignment-form {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+        }
+
+        .assignment-form select {
+            width: auto;
+            min-width: 180px;
+            max-width: 220px;
+            margin: 0;
+        }
+
+        .assignment-form button {
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .assignment-cell {
+            min-width: 280px;
+        }
     </style>
 </head>
 
@@ -64,9 +87,8 @@
                             <td>
                                 <%= task.createdBy ? task.createdBy.email : 'Unbekannt' %>
                             </td>
-                            <td>
-                                <%= task.assignedTo ? task.assignedTo.email : 'Nicht zugewiesen' %>
-                                <form action="/aufgaben/<%= task.id %>/zuweisen" method="POST">
+                            <td class="assignment-cell">
+                                <form class="assignment-form" action="/aufgaben/<%= task.id %>/zuweisen" method="POST">
                                     <select name="assignedToId" aria-label="Aufgabe zuweisen">
                                         <option value="" <%= !task.assignedTo ? 'selected' : '' %>>Nicht zugewiesen</option>
                                         <% users.forEach((user) => { %>
