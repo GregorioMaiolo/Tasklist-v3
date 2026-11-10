@@ -166,6 +166,10 @@ exports.updateAssignment = async (req, res) => {
             return res.status(404).send('Aufgabe nicht gefunden.');
         }
 
+        if (task.done) {
+            return res.status(409).send('Erledigte Aufgaben können nicht mehr zugewiesen werden.');
+        }
+
         if (assignedToId !== null) {
             const assignedUser = await userService.getUserById(assignedToId);
             if (!assignedUser) {

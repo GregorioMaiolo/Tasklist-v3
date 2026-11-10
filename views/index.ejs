@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css">
 
     <style>
-        .done {
+        .done .task-text {
             text-decoration: line-through;
         }
 
@@ -85,38 +85,44 @@
                             <td>
                                 <%= task.id %>
                             </td>
-                            <td>
+                            <td class="task-text">
                                     <%= task.title %>
                                 </td>
-                            <td>
+                            <td class="task-text">
                                 <%= task.description %>
                             </td>
-                            <td>
+                            <td class="task-text">
                                 <%= task.dueDate %>
                             </td>
-                            <td>
+                            <td class="task-text">
                                 <%= task.createdBy ? task.createdBy.email : 'Unbekannt' %>
                             </td>
                             <td class="assignment-cell">
-                                <form class="assignment-form" action="/aufgaben/<%= task.id %>/zuweisen" method="POST">
-                                    <label for="assignment-<%= task.id %>">
-                                        Aktuell: <%= task.assignedTo ? task.assignedTo.email : 'Nicht zugewiesen' %>
-                                    </label>
-                                    <select
-                                        id="assignment-<%= task.id %>"
-                                        name="assignedToId"
-                                        aria-label="Zuweisung ändern für Aufgabe <%= task.id %>"
-                                        onchange="this.form.submit()"
-                                    >
-                                        <option value="" <%= !task.assignedTo ? 'selected' : '' %>>Nicht zugewiesen</option>
-                                        <% users.forEach((user) => { %>
-                                            <option
-                                                value="<%= user.id %>"
-                                                <%= task.assignedTo && task.assignedTo.id === user.id ? 'selected' : '' %>
-                                            ><%= user.email %></option>
-                                        <% }) %>
-                                    </select>
-                                </form>
+                                <% if (task.done) { %>
+                                    <span class="task-text">
+                                        <%= task.assignedTo ? task.assignedTo.email : 'Nicht zugewiesen' %>
+                                    </span>
+                                <% } else { %>
+                                    <form class="assignment-form" action="/aufgaben/<%= task.id %>/zuweisen" method="POST">
+                                        <label for="assignment-<%= task.id %>">
+                                            Aktuell: <%= task.assignedTo ? task.assignedTo.email : 'Nicht zugewiesen' %>
+                                        </label>
+                                        <select
+                                            id="assignment-<%= task.id %>"
+                                            name="assignedToId"
+                                            aria-label="Zuweisung ändern für Aufgabe <%= task.id %>"
+                                            onchange="this.form.submit()"
+                                        >
+                                            <option value="" <%= !task.assignedTo ? 'selected' : '' %>>Nicht zugewiesen</option>
+                                            <% users.forEach((user) => { %>
+                                                <option
+                                                    value="<%= user.id %>"
+                                                    <%= task.assignedTo && task.assignedTo.id === user.id ? 'selected' : '' %>
+                                                ><%= user.email %></option>
+                                            <% }) %>
+                                        </select>
+                                    </form>
+                                <% } %>
                             </td>
                             <td>
                                 <% if (task.done) { %>
