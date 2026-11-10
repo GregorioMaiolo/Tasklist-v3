@@ -29,15 +29,25 @@
             min-width: 180px;
             max-width: 220px;
             margin: 0;
+            color: #222 !important;
+            background-color: #fff !important;
+            -webkit-text-fill-color: #222;
         }
 
-        .assignment-form button {
-            margin: 0;
-            white-space: nowrap;
+        .assignment-form select:focus {
+            color: #222 !important;
+            background-color: #fff !important;
+            -webkit-text-fill-color: #222;
         }
 
         .assignment-cell {
-            min-width: 280px;
+            min-width: 220px;
+        }
+
+        .assignment-form label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 400;
         }
     </style>
 </head>
@@ -89,7 +99,15 @@
                             </td>
                             <td class="assignment-cell">
                                 <form class="assignment-form" action="/aufgaben/<%= task.id %>/zuweisen" method="POST">
-                                    <select name="assignedToId" aria-label="Aufgabe zuweisen">
+                                    <label for="assignment-<%= task.id %>">
+                                        Aktuell: <%= task.assignedTo ? task.assignedTo.email : 'Nicht zugewiesen' %>
+                                    </label>
+                                    <select
+                                        id="assignment-<%= task.id %>"
+                                        name="assignedToId"
+                                        aria-label="Zuweisung ändern für Aufgabe <%= task.id %>"
+                                        onchange="this.form.submit()"
+                                    >
                                         <option value="" <%= !task.assignedTo ? 'selected' : '' %>>Nicht zugewiesen</option>
                                         <% users.forEach((user) => { %>
                                             <option
@@ -98,7 +116,6 @@
                                             ><%= user.email %></option>
                                         <% }) %>
                                     </select>
-                                    <button type="submit">Speichern</button>
                                 </form>
                             </td>
                             <td>
